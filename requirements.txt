@@ -1,0 +1,5 @@
+viam-sdk>=0.77.0
+typing-extensions
+# bleak 3.0.2 is what we verified against the Pro-D3 on the Linux target. On
+# Linux it pulls dbus-fast (pure Python, no compiler) and uses BlueZ at runtime.
+bleak==3.0.2
