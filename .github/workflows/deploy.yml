@@ -1,0 +1,26 @@
+# Publishes the module to the Viam registry when a GitHub Release is published.
+# See https://github.com/viamrobotics/build-action for help.
+#
+# Required repository secrets:
+#   VIAM_KEY_ID    - Viam org/location API key ID with permission to upload the module
+#   VIAM_KEY_VALUE - corresponding API key value
+
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: viamrobotics/build-action@v1
+        with:
+          version: ${{ github.ref_name }}
+          ref: ${{ github.sha }}
+          key-id: ${{ secrets.VIAM_KEY_ID }}
+          key-value: ${{ secrets.VIAM_KEY_VALUE }}
+          token: ${{ github.token }}

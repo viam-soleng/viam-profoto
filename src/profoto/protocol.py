@@ -4,8 +4,7 @@ Pure functions and constants only - no BLE, no Viam - so every byte here is
 unit-testable against real captured frames (see tests/test_protocol.py).
 
 The protocol was reverse-engineered from the Profoto Control Android app
-(`com.profoto.freke` 1.4.2) and verified against a physical Pro-D3. See
-`~/git/profoto-spike/FINDINGS.md` for the full derivation.
+(`com.profoto.freke` 1.4.2) and verified against a physical Pro-D3.
 
 Frame format (writes, to CHAR_WRITE):
     [counter:1][opcode:2 little-endian][payload...]
