@@ -1,8 +1,8 @@
 {
   "$schema": "https://dl.viam.dev/module.schema.json",
   "module_id": "viam-soleng:profoto",
-  "visibility": "private",
-  "url": "",
+  "visibility": "public",
+  "url": "https://github.com/viam-soleng/viam-profoto",
   "description": "Control and read Profoto Pro-D3 studio flash power over Bluetooth LE.",
   "applications": null,
   "markdown_link": "README.md",

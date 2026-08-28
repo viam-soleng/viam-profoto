@@ -60,7 +60,7 @@ skipped, so an idle light writes one row, not thousands.
 ## Protocol & safety
 
 The PUP protocol was reverse-engineered from the Profoto Control Android app and
-verified against a physical Pro-D3 — see `~/git/profoto-spike/FINDINGS.md`. The
+verified against a physical Pro-D3. The
 module only ever writes to the PUP command characteristic and the device-name
 (registration) characteristic; it **never** touches the firmware/DFU service.
 
@@ -75,6 +75,5 @@ python3 -m venv venv && ./venv/bin/pip install -r requirements.txt pytest
 ./venv/bin/python -m pytest tests/ -v   # codec tests, no hardware needed
 ```
 
-Before publishing: set `visibility` and `url` in `meta.json`, and change the
-`viam-soleng` namespace (in `meta.json` and `src/models/pro_d3.py`) if you want a
-different owner.
+To change the owner namespace, update the `viam-soleng` triple in
+`src/models/pro_d3.py` and `module_id`/`model` in `meta.json`.

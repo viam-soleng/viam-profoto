@@ -2,8 +2,8 @@
 
 Registered as `rdk:component:sensor` (there is no `light` component in the RDK):
 `get_readings` reports the current power (and other decoded state), and
-`do_command` sets power. Reverse-engineered PUP protocol - see the `profoto`
-package and `~/git/profoto-spike/FINDINGS.md`.
+`do_command` sets power. Reverse-engineered PUP protocol — see the `profoto`
+package for the codec and session implementation.
 """
 
 from __future__ import annotations

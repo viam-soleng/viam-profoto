@@ -51,7 +51,7 @@ characteristic — the light ignores unregistered clients), then requests state
 with a zero-payload prologue. Power is set with the `MxEnergyV2` message
 (`[counter, 0x23, 0x03, headId, round(fstop*10)]`) and confirmed by the light's
 ACK. The scaling `byte = f-stop × 10` and the whole handshake were verified on a
-real unit. Full derivation: `~/git/profoto-spike/FINDINGS.md`.
+real unit.
 
 ## Caveats
 
