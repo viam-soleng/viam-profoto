@@ -2,8 +2,8 @@
 # See https://github.com/viamrobotics/build-action for help.
 #
 # Required repository secrets:
-#   VIAM_KEY_ID    - Viam org/location API key ID with permission to upload the module
-#   VIAM_KEY_VALUE - corresponding API key value
+#   VIAM_KEY_ID    — Viam org/location API key ID with permission to upload the module
+#   VIAM_KEY_VALUE — corresponding API key value
 
 name: Deploy
 
@@ -19,8 +19,48 @@ jobs:
 
       - uses: viamrobotics/build-action@v1
         with:
+          # Replace with `version: ""` to dry-run the build without uploading.
           version: ${{ github.ref_name }}
           ref: ${{ github.sha }}
           key-id: ${{ secrets.VIAM_KEY_ID }}
           key-value: ${{ secrets.VIAM_KEY_VALUE }}
           token: ${{ github.token }}
+
+  # The phone remote ships as a second, app-only public module
+  # (nines:nines-remote — see remote-module/README.md). It's a static bundle,
+  # so no build-action/arch matrix: one `viam module upload --platform any`.
+  # The first publish is manual (`viam module create`); this job only versions
+  # an app that already exists in the registry.
+  publish-remote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refuse placeholder org ids
+        run: |
+          if grep -q '<viam-org-id>\|<nines-org-id>' remote-module/meta.json; then
+            echo "remote-module/meta.json still has allowedOrgIds placeholders —"
+            echo "set the real org ids before the remote app can publish."
+            exit 1
+          fi
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build remote bundle
+        run: |
+          npm ci
+          make remote-module.tar.gz
+      - name: Install viam CLI
+        run: |
+          curl -fsSL -o viam \
+            https://storage.googleapis.com/packages.viam.com/apps/viam-cli/viam-cli-stable-linux-amd64
+          chmod +x viam
+      - name: Upload to registry
+        # Registry versions are write-once, so every release bumps.
+        run: |
+          ./viam login api-key --key-id "${{ secrets.VIAM_KEY_ID }}" --key "${{ secrets.VIAM_KEY_VALUE }}"
+          cd remote-module
+          ../viam module upload --version "${{ github.ref_name }}" --platform any --upload ../remote-module.tar.gz
