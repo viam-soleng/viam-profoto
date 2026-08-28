@@ -1,29 +1,46 @@
 # viam-profoto
 
 A Viam module to **read and set the flash power of a Profoto Pro-D3** studio
-light over Bluetooth LE.
-
-- **Model:** `viam-soleng:profoto:pro-d3` (API `rdk:component:sensor`)
-- `get_readings` reports current power (f-stops) and other decoded state.
-- `do_command({"set_power": 1.2})` sets the power.
-
-There is no `light` component in the RDK, so this is a `sensor`: it gets both a
-`Readings` collector (for logging power to Viam data) and `DoCommand` (for
-control). Firing is **not** exposed — the Pro-D3 has no BLE trigger; it fires
-over its 3.5 mm sync port / the Air radio.
+light over Bluetooth LE. Includes automatic discovery of lights on your network.
 
 ## Requirements
 
 - A Linux (or macOS) host with Bluetooth. On Linux: BlueZ with `bluetoothd`
-  running. If viam-server runs as root, `org.bluez` access is unrestricted and
-  the light needs no pairing.
-- The light's Bluetooth address. On Linux this is a MAC (e.g.
-  `38:39:8F:A4:ED:34`); find it with `bluetoothctl scan on` (look for
-  `Pro-D3 <serial>`). On macOS it's a per-host UUID instead.
-- The light: **Settings → Bluetooth → ON**, and it accepts **one central at a
-  time** — quit the Profoto app / Control Desktop so they don't hold it.
+  running.
+- The light: **Settings -> Bluetooth -> ON**. The light accepts **one central at
+  a time** — quit the Profoto app / Control Desktop so they don't hold it.
+
+## Install
+
+Add the module from the [Viam registry](https://app.viam.com/module/viam-soleng/profoto):
+
+1. In your machine's config, go to **Modules** and add `viam-soleng:profoto`.
+2. Add the **discovery service** (`viam-soleng:profoto:ble-discovery`, API
+   `rdk:service:discovery`) — it scans for nearby Pro-D3 lights over BLE and
+   suggests component configurations automatically.
+3. Add a **sensor component** for each light, using the model
+   `viam-soleng:profoto:pro-d3` (API `rdk:component:sensor`).
 
 ## Configure
+
+### Discovery service (optional)
+
+```json
+{
+  "name": "profoto-discovery",
+  "api": "rdk:service:discovery",
+  "model": "viam-soleng:profoto:ble-discovery",
+  "attributes": {
+    "scan_timeout": 10
+  }
+}
+```
+
+| attribute | required | default | meaning |
+|---|---|---|---|
+| `scan_timeout` | no | `10` | seconds to scan for BLE advertisers |
+
+### Sensor component
 
 ```json
 {
@@ -44,36 +61,27 @@ over its 3.5 mm sync port / the Air radio.
 | `head_id` | no | `0` | which head to address (Pro-D3 is single-head: 0) |
 | `connect_timeout` | no | `15` | seconds to wait for a BLE connect |
 
+If you don't know the light's address, add the discovery service first — it will
+find it for you. On Linux you can also run `bluetoothctl scan on` and look for
+`Pro-D3 <serial>`.
+
 ## Use
 
-Set power (f-stops, 0.1–10.0) from the Control tab or a client:
+**Set power** (f-stops, 0.1–10.0) from the Control tab or a client:
 
 ```json
 { "set_power": 5.0 }
 ```
 
-Read power: the component's readings show `power` (f-stops), `power_byte`,
+**Read power:** the component's readings show `power` (f-stops), `power_byte`,
 `head_on`, `flash_mode`, `serial`, and `connected`. Enable data capture on
 `get_readings` to log power to Viam data — identical consecutive readings are
-skipped, so an idle light writes one row, not thousands.
+skipped automatically.
 
-## Protocol & safety
+## Caveats
 
-The PUP protocol was reverse-engineered from the Profoto Control Android app and
-verified against a physical Pro-D3. The
-module only ever writes to the PUP command characteristic and the device-name
-(registration) characteristic; it **never** touches the firmware/DFU service.
-
-Reverse-engineered, so a Profoto firmware update may change it. Also note that
-*lowering* power on a D-series can dump energy through the tube (a light-emitting
-event); *raising* power just charges the capacitor.
-
-## Develop
-
-```bash
-python3 -m venv venv && ./venv/bin/pip install -r requirements.txt pytest
-./venv/bin/python -m pytest tests/ -v   # codec tests, no hardware needed
-```
-
-To change the owner namespace, update the `viam-soleng` triple in
-`src/models/pro_d3.py` and `module_id`/`model` in `meta.json`.
+- **One central at a time.** While this module holds the light, the Profoto app
+  can't connect, and vice-versa.
+- **No firing.** The Pro-D3 has no BLE trigger; fire it via the sync port or Air
+  radio.
+- **Reverse-engineered protocol.** A Profoto firmware update may change it.
