@@ -23,7 +23,7 @@
   "first_run": "",
   "build": {
     "build": "./build.sh",
-    "setup": "./setup.sh",
+    "setup": "",
     "path": "dist/archive.tar.gz",
     "arch": [
       "linux/any",
