@@ -26,3 +26,4 @@ jobs:
           key-id: ${{ secrets.VIAM_KEY_ID }}
           key-value: ${{ secrets.VIAM_KEY_VALUE }}
           token: ${{ github.token }}
+          do-update: false
