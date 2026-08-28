@@ -12,6 +12,11 @@
       "model": "viam-soleng:profoto:pro-d3",
       "markdown_link": "viam-soleng_profoto_pro-d3.md",
       "short_description": "Read and set the flash power of a Profoto Pro-D3 over BLE."
+    },
+    {
+      "api": "rdk:service:discovery",
+      "model": "viam-soleng:profoto:ble-discovery",
+      "short_description": "Scan for Profoto Pro-D3 lights over BLE and suggest configurations."
     }
   ],
   "entrypoint": "dist/main",
